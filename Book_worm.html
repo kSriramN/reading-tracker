@@ -1,0 +1,114 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Reading Tracker</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f6f8;
+        margin: 0;
+        padding: 15px;
+    }
+    h1 {
+        text-align: center;
+        color: #333;
+    }
+    .card {
+        background: #fff;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    input, button {
+        width: 100%;
+        padding: 10px;
+        margin-top: 8px;
+        font-size: 16px;
+    }
+    button {
+        background: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+    }
+    .book {
+        border-bottom: 1px solid #ddd;
+        padding: 10px 0;
+    }
+    .progress {
+        font-size: 14px;
+        color: #555;
+    }
+</style>
+</head>
+
+<body>
+
+<h1>📚 Reading Tracker</h1>
+
+<div class="card">
+    <h3>Add Book</h3>
+    <input type="text" id="title" placeholder="Book name">
+    <input type="number" id="totalPages" placeholder="Total pages">
+    <button onclick="addBook()">Add Book</button>
+</div>
+
+<div class="card">
+    <h3>My Books</h3>
+    <div id="bookList"></div>
+</div>
+
+<script>
+let books = JSON.parse(localStorage.getItem("books")) || [];
+
+function saveBooks() {
+    localStorage.setItem("books", JSON.stringify(books));
+}
+
+function addBook() {
+    const title = document.getElementById("title").value;
+    const totalPages = document.getElementById("totalPages").value;
+
+    if (!title || !totalPages) return alert("Enter book name and total pages");
+
+    books.push({ title, totalPages, lastPage: 0 });
+    saveBooks();
+    displayBooks();
+
+    document.getElementById("title").value = "";
+    document.getElementById("totalPages").value = "";
+}
+
+function updatePage(index, value) {
+    books[index].lastPage = value;
+    saveBooks();
+    displayBooks();
+}
+
+function displayBooks() {
+    const list = document.getElementById("bookList");
+    list.innerHTML = "";
+
+    books.forEach((book, index) => {
+        const percent = Math.round((book.lastPage / book.totalPages) * 100);
+        list.innerHTML += `
+        <div class="book">
+            <strong>${book.title}</strong><br>
+            <div class="progress">Page ${book.lastPage} of ${book.totalPages} (${percent}%)</div>
+            <input type="number" placeholder="Last read page"
+                value="${book.lastPage}"
+                oninput="updatePage(${index}, this.value)">
+        </div>
+        `;
+    });
+}
+
+displayBooks();
+</script>
+
+</body>
+</html>
